@@ -1,10 +1,9 @@
-import { BaseApp } from '@zeppos/zml/base-app'
+// import { BaseApp } from '@zeppos/zml/base-app'
 import { log as Logger } from '@zos/utils'
 
 const logger = Logger.getLogger('todo-list-app')
 
-App(
-  BaseApp({
+App({
     globalData: {},
     onCreate() {
       logger.log('app onCreate invoked')
@@ -12,6 +11,5 @@ App(
 
     onDestroy() {
       logger.log('app onDestroy invoked')
-    }
-  })
+    }}
 )

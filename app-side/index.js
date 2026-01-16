@@ -1,4 +1,4 @@
-import { BaseSideService } from '@zeppos/zml/base-side'
+// import { BaseSideService } from '@zeppos/zml/base-side'
 import { settingsLib } from '@zeppos/zml/base-side'
 
 import { DEFAULT_TODO_LIST } from './../utils/constants'
@@ -8,8 +8,7 @@ function getTodoList() {
     ? JSON.parse(settingsLib.getItem('todoList'))
     : [...DEFAULT_TODO_LIST]
 }
-AppSideService(
-  BaseSideService({
+AppSideService({
     onInit() {},
     onRequest(req, res) {
       if (req.method === 'GET_TODO_LIST') {
@@ -43,5 +42,5 @@ AppSideService(
     },
     onRun() {},
     onDestroy() {}
-  })
+  }
 )

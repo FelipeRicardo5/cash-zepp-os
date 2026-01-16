@@ -5,6 +5,43 @@ import { px } from '@zos/utils'
 
 export const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo()
 
+export const TITLE_PATTERN = (text) =>({
+  text: getText(text),
+  x: px(42),
+  y: px(105),
+  w: DEVICE_WIDTH - px(42 * 2),
+  h: px(50),
+  color: 0xffffff,
+  text_size: 26,
+  align_h: hmUI.align.CENTER_H,
+  text_style: hmUI.text_style.WRAP
+})
+
+export const SMALL_TITLE_PATTERN_TOP = (text) =>({
+  text: getText(text),
+  x: px(42),
+  y: px(85),
+  w: DEVICE_WIDTH - px(42 * 2),
+  h: px(50),
+  color: 0xffffff,
+  text_size: 16,
+  align_h: hmUI.align.CENTER_H,
+  text_style: hmUI.text_style.WRAP
+})
+
+export const NUMBER_VALUE = (text) =>({
+  text: getText(text),
+  x: px(42),
+  y: px(185),
+  w: DEVICE_WIDTH - px(42 * 2),
+  h: px(50),
+  color: 0x7952BA,
+  text_size: 46,
+  align_h: hmUI.align.CENTER_H,
+  text_style: hmUI.text_style.WRAP,
+  font: 'fonts/bold.ttf'
+})
+
 export const TITLE_TEXT_STYLE = {
   text: getText('todoList'),
   x: px(42),
