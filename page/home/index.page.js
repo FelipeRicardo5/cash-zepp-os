@@ -3,6 +3,7 @@ import * as hmUI from '@zos/ui'
 import { getText } from '@zos/i18n'
 import { getDeviceInfo, SCREEN_SHAPE_SQUARE } from '@zos/device'
 import { log as Logger } from '@zos/utils'
+import { push } from '@zos/router'
 // import { BasePage } from '@zeppos/zml/base-page'
 import {
   TITLE_TEXT_STYLE,
@@ -15,6 +16,7 @@ import {
 } from 'zosLoader:./index.page.[pf].layout.js'
 import { readFileSync, writeFileSync } from './../../utils/fs'
 import { getScrollListDataConfig } from './../../utils/index'
+import { appState } from '../../utils/appState'
 
 const logger = Logger.getLogger('todo-list-page')
 
@@ -24,11 +26,23 @@ Page({
     tipText: null,
     refreshText: null,
     addButton: null,
-    dataList: readFileSync()
+    dataList: readFileSync(),
+    balanceValue: null,
+    historyBalance: null
   },
   onInit() {
     logger.debug('page onInit invoked')
     this.getTodoList()
+
+    this.updateBalance = (newBalance) => {
+      if (this.balanceWidget) {
+        this.balanceWidget.setProperty(hmUI.prop.TEXT,
+          `R$ ${newBalance.toFixed(2)}`
+        )
+      }
+    }
+
+    appState.on('balance', this.updateBalance)
   },
   build() {
     logger.debug('page build invoked')
@@ -41,33 +55,60 @@ Page({
 
     this.createAndUpdateList(false)
 
-    hmUI.createWidget(hmUI.widget.FILL_RECT, {
-      x: px(42),
-      y: px(150),
-      w: DEVICE_WIDTH - px(42 * 2),  
-      h: px(2),  
-      color: 0xffffff  
-    })
-    
-    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('Pressione e segure p/ resetar'))
-    hmUI.createWidget(hmUI.widget.TEXT, TITLE_PATTERN('SALDO ATUAL'))
-    hmUI.createWidget(hmUI.widget.TEXT, NUMBER_VALUE('R$500,00'))
+    // hmUI.createWidget(hmUI.widget.FILL_RECT, {
+    //   x: px(42),
+    //   y: px(150),
+    //   w: DEVICE_WIDTH - px(42 * 2),
+    //   h: px(2),
+    //   color: 0xffffff
+    // })
 
-    this.state.addButton = hmUI.createWidget(hmUI.widget.BUTTON, {
-      ...ADD_BUTTON,
+    // hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('Pressione e segure p/ resetar'))
+    // hmUI.createWidget(hmUI.widget.TEXT, TITLE_PATTERN('SALDO ATUAL'))
+    // balanceValue = hmUI.createWidget(hmUI.widget.TEXT, NUMBER_VALUE('R$500,00'))
+
+    hmUI.createWidget(hmUI.widget.BUTTON, {
+      text: '+ R$ 100',
+      x: 50,
+      y: 200,
+      w: 200,
+      h: 60,
       click_func: () => {
-        logger.debug('add button clicked')
-        try {
-          hmUI.showToast({ text: 'Add clicked' })
-        } catch (e) {
-          // swallow if showToast unavailable in current env
-        }
-        this.addRandomTodoItem()
+        const current = appState.get('balance')
+        appState.set('balance', current + 100)
+        // ✅ Todas as páginas que escutam 'balance' serão atualizadas!
+        logger.debug(appState.get('balance'))
       }
     })
+    hmUI.createWidget(hmUI.widget.TEXT, {
+      text: `R$ ${appState.get('balance').toFixed(2)}`,
+      x: 50,
+      y: 100,
+      w: 200,
+      h: 50,
+      color: 0xffffff
+    })
+
+    // this.state.addButton = hmUI.createWidget(hmUI.widget.BUTTON, {
+    //   ...ADD_BUTTON,
+    //   longpress_func: () => {
+    //     logger.debug('add button clicked')
+    //     try {
+    //       push({ url: 'page/historic/index.page' })
+    //     } catch (e) {
+    //       hmUI.showToast({ text: e })
+    //       console.log(e)
+    //       // swallow if showToast unavailable in current env
+    //     }
+    //   }
+    // })
+  },
+  newValue(valeu) {
+    this.balanceValue.addEventListener(event.CLICK_UP, () => console.log("mano"))
   },
   onDestroy() {
     logger.debug('page onDestroy invoked')
+    appState.off('balance', this.updateBalance)
     writeFileSync(this.state.dataList, false)
   },
   onCall(req) {
