@@ -25,6 +25,7 @@
         "page": {
           "pages": [
             "page/home/index.page",
+            "page/new_transaction/index.page",
             "page/historic/index.page"
           ]
         },

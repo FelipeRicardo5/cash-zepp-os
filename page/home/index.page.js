@@ -4,21 +4,25 @@ import { getText } from '@zos/i18n'
 import { getDeviceInfo, SCREEN_SHAPE_SQUARE } from '@zos/device'
 import { log as Logger } from '@zos/utils'
 import { push } from '@zos/router'
+import { Vibrator } from '@zos/sensor'
 // import { BasePage } from '@zeppos/zml/base-page'
+import { createTextConfig } from '../../utils/textStyles.js'
+
 import {
   TITLE_TEXT_STYLE,
-  TIPS_TEXT_STYLE,
   SCROLL_LIST,
   ADD_BUTTON,
   TITLE_PATTERN,
   SMALL_TITLE_PATTERN_TOP,
-  NUMBER_VALUE
+  BALANCE_VALUE,
+  LINE
 } from 'zosLoader:./index.page.[pf].layout.js'
 import { readFileSync, writeFileSync } from './../../utils/fs'
 import { getScrollListDataConfig } from './../../utils/index'
 import { appState } from '../../utils/appState'
 import { LocalStorage } from '@zos/storage'
 
+const vibrator = new Vibrator()
 const storage = new LocalStorage()
 const logger = Logger.getLogger('todo-list-page') // add correct name here
 
@@ -33,7 +37,7 @@ Page({
     this.updateBalance = (newBalance) => {
       if (this.balanceWidget) {
         this.balanceWidget.setProperty(hmUI.prop.TEXT,
-          `Saldo R$ ${newBalance.toFixed(2)}`
+          `R$${newBalance.toFixed(2)}`
         )
       }
     }
@@ -50,55 +54,56 @@ Page({
       })
     }
 
-    this.balanceWidget = hmUI.createWidget(hmUI.widget.TEXT, {
-      text: `Saldo R$ ${vl}`,
-      x: 50,
-      y: 100,
-      w: 200,
-      h: 50,
-      color: 0xffffff
-    })
+    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('Pressione e segure p/ resetar', 100))
+    hmUI.createWidget(hmUI.widget.TEXT, TITLE_PATTERN('Saldo Atual', 140))
 
-    const add = hmUI.createWidget(hmUI.widget.BUTTON, {
-      text: '+ R$ 100',
-      x: 0,
-      y: 200,
-      w: 200,
-      h: 60,
-      click_func: () => {
-        // Atualiza o armazenamento local e o estado global
-        storage.setItem('balance', storage.getItem('balance') + 100)
+    hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(200))
+
+    this.balanceWidget = hmUI.createWidget(hmUI.widget.BUTTON, BALANCE_VALUE(
+      `R$${vl.toFixed(2)}`,
+      () => {
+        vibrator.start()
+        storage.setItem('balance', 0)
         appState.set('balance', storage.getItem('balance'))
-        logger.debug(storage.getItem('balance'))
-      }
-    })
+        setTimeout(() => {
+          vibrator.stop()
+        }, 200)
+      },
+      () => { push({ url: 'page/new_transaction/index.page' }) }
+    ))
 
-    const sub = hmUI.createWidget(hmUI.widget.BUTTON, {
-      text: '- R$ 100',
-      x: 150,
-      y: 200,
-      w: 200,
-      h: 60,
-      click_func: () => {
-        // Atualiza o armazenamento local e o estado global
-        storage.setItem('balance', storage.getItem('balance') - 100)
-        appState.set('balance', storage.getItem('balance'))
-        logger.debug(storage.getItem('balance'))
-      }
-    })
+    hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(280))
+    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('ou apenas clique para alterar.', 300))
 
-    this.state.addButton = hmUI.createWidget(hmUI.widget.BUTTON, {
-      ...ADD_BUTTON,
-      click_func: () => {
-        logger.debug('add button clicked')
-        try {
-          push({ url: 'page/historic/index.page' })
-        } catch (e) {
-          hmUI.showToast({ text: e })
-          console.log(e)
-        }
-      }
-    })
+    // const add = hmUI.createWidget(hmUI.widget.BUTTON, {
+    //   text: '+ R$ 100',
+    //   x: 0,
+    //   y: 350,
+    //   w: 200,
+    //   h: 60,
+    //   click_func: () => {
+    //     // Atualiza o armazenamento local e o estado global
+    //     storage.setItem('balance', storage.getItem('balance') + 100)
+    //     appState.set('balance', storage.getItem('balance'))
+    //     logger.debug(storage.getItem('balance'))
+    //   }
+    // })
+
+    // const sub = hmUI.createWidget(hmUI.widget.BUTTON, {
+    //   text: '- R$ 100',
+    //   x: 150,
+    //   y: 350,
+    //   w: 200,
+    //   h: 60,
+    //   click_func: () => {
+    //     // Atualiza o armazenamento local e o estado global
+    //     storage.setItem('balance', storage.getItem('balance') - 100)
+    //     appState.set('balance', storage.getItem('balance'))
+    //     logger.debug(storage.getItem('balance'))
+    //   }
+    // })
+
+
   },
   onDestroy() {
     logger.debug('page onDestroy invoked')

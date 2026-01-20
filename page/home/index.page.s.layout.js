@@ -5,41 +5,44 @@ import { px } from '@zos/utils'
 
 export const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo()
 
-export const TITLE_PATTERN = (text) =>({
-  text: getText(text),
+export const TITLE_PATTERN = (text, y) =>({
+  text: getText(text.toUpperCase()),
   x: px(42),
-  y: px(105),
+  y: px(y),
   w: DEVICE_WIDTH - px(42 * 2),
   h: px(50),
-  color: 0xffffff,
-  text_size: 26,
+  color: 0x787878,
+  text_size: 40,
   align_h: hmUI.align.CENTER_H,
   text_style: hmUI.text_style.WRAP
 })
 
-export const SMALL_TITLE_PATTERN_TOP = (text) =>({
+export const SMALL_TITLE_PATTERN_TOP = (text, y) =>({
   text: getText(text),
-  x: px(42),
-  y: px(85),
-  w: DEVICE_WIDTH - px(42 * 2),
+  x: px(20),
+  y: px(y),
+  w: DEVICE_WIDTH - px(20 * 2),
   h: px(50),
   color: 0xffffff,
-  text_size: 16,
+  text_size: 24,
   align_h: hmUI.align.CENTER_H,
   text_style: hmUI.text_style.WRAP
 })
 
-export const NUMBER_VALUE = (text) =>({
+export const BALANCE_VALUE = (text, callback_press, callback_click) =>({
   text: getText(text),
   x: px(42),
-  y: px(185),
+  y: px(215),
   w: DEVICE_WIDTH - px(42 * 2),
   h: px(50),
   color: 0x7952BA,
-  text_size: 46,
+  normal_color: 0x000000,
+  press_color : 0x000000,
+  text_size: 55,
   align_h: hmUI.align.CENTER_H,
   text_style: hmUI.text_style.WRAP,
-  font: 'fonts/bold.ttf'
+  click_func: callback_click,
+  longpress_func: callback_press
 })
 
 export const TITLE_TEXT_STYLE = {
@@ -51,7 +54,7 @@ export const TITLE_TEXT_STYLE = {
   color: 0xffffff,
   text_size: 36,
   align_h: hmUI.align.CENTER_H,
-  text_style: hmUI.text_style.WRAP
+  text_style: hmUI.text_style.WRAP,
 }
 
 export const ADD_BUTTON = {
@@ -63,18 +66,14 @@ export const ADD_BUTTON = {
   press_src: 'add.png'
 }
 
-export const TIPS_TEXT_STYLE = {
-  text: getText('noData'),
-  x: px(15),
-  y: px(120),
-  w: DEVICE_WIDTH - px(15 * 2),
-  h: DEVICE_HEIGHT - px(120),
-  color: 0xffffff,
-  text_size: px(32),
-  align_h: hmUI.align.CENTER_H,
-  align_v: hmUI.align.CENTER_V,
-  text_style: hmUI.text_style.WRAP
-}
+export const LINE = (x) => ({
+  x: px(42),
+  y: px(x),
+  w: DEVICE_WIDTH - px(42 * 2),
+  h: px(2),
+  color: 0x828282,
+  alpha: 85
+})
 
 export const SCROLL_LIST = {
   item_height: px(120),

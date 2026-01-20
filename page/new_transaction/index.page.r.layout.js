@@ -5,7 +5,7 @@ import { px } from '@zos/utils'
 
 export const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo()
 
-export const TITLE_PATTERN = (text) => ({
+export const TITLE_PATTERN = (text) =>({
   text: getText(text),
   x: px(42),
   y: px(105),
@@ -17,7 +17,7 @@ export const TITLE_PATTERN = (text) => ({
   text_style: hmUI.text_style.WRAP
 })
 
-export const SMALL_TITLE_PATTERN_TOP = (text) => ({
+export const SMALL_TITLE_PATTERN_TOP = (text) =>({
   text: getText(text),
   x: px(42),
   y: px(85),
@@ -29,7 +29,7 @@ export const SMALL_TITLE_PATTERN_TOP = (text) => ({
   text_style: hmUI.text_style.WRAP
 })
 
-export const BALANCE_VALUE = (text) => ({
+export const NUMBER_VALUE = (text) =>({
   text: getText(text),
   x: px(42),
   y: px(185),
@@ -74,14 +74,6 @@ export const TIPS_TEXT_STYLE = {
   align_h: hmUI.align.CENTER_H,
   align_v: hmUI.align.CENTER_V,
   text_style: hmUI.text_style.WRAP
-}
-
-export const LINE = {
-  x: px(42),
-  y: px(150),
-  w: DEVICE_WIDTH - px(42 * 4),
-  h: px(2),
-  color: 0x828282
 }
 
 export const SCROLL_LIST = {
