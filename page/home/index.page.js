@@ -20,7 +20,7 @@ import { appState } from '../../utils/appState'
 import { LocalStorage } from '@zos/storage'
 
 const storage = new LocalStorage()
-const logger = Logger.getLogger('todo-list') // add correct name here
+const logger = Logger.getLogger('todo-list-page') // add correct name here
 
 Page({
   state: {
