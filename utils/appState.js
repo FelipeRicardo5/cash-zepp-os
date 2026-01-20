@@ -11,6 +11,10 @@ class AppState{
         return this.data[key]
     }
 
+    getListeners(key){
+        return this.listeners[key] || []
+    }
+
     set(key, value){
         this.data[key] = value
         this.notify(key, value)

@@ -4,7 +4,9 @@ import { log as Logger } from '@zos/utils'
 const logger = Logger.getLogger('todo-list-app')
 
 App({
-    globalData: {},
+    globalData: {
+      balance: 0
+    },
     onCreate() {
       logger.log('app onCreate invoked')
     },
