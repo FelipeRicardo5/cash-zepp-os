@@ -76,6 +76,16 @@ export const TIPS_TEXT_STYLE = {
   text_style: hmUI.text_style.WRAP
 }
 
+export const LINE = (y) => ({
+  x: px(42),
+  y: px(y),
+  w: DEVICE_WIDTH - px(42 * 2),
+  h: px(2),
+  color: 0x828282,
+  alpha: 85
+})
+
+
 export const SCROLL_LIST = {
   item_height: px(120),
   item_space: px(10),
