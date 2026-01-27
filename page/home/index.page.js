@@ -24,7 +24,7 @@ import { LocalStorage } from '@zos/storage'
 
 const vibrator = new Vibrator()
 const storage = new LocalStorage()
-const logger = Logger.getLogger('todo-list-page') // add correct name here
+const logger = Logger.getLogger('cash') // add correct name here
 
 Page({
   state: {
@@ -69,11 +69,12 @@ Page({
           vibrator.stop()
         }, 200)
       },
-      () => { push({ url: 'page/new_transaction/index.page' }) }
+      () => { push({ url: 'page/new_transaction/index.page' }) },
+      
     ))
 
-    hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(280))
-    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('ou apenas clique para alterar.', 300))
+    hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(320))
+    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('ou apenas clique para alterar.', 340))
 
     // const add = hmUI.createWidget(hmUI.widget.BUTTON, {
     //   text: '+ R$ 100',

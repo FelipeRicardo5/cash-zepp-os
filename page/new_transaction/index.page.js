@@ -7,13 +7,13 @@ import { push } from '@zos/router'
 // import { BasePage } from '@zeppos/zml/base-page'
 import {
     TITLE_TEXT_STYLE,
-    TIPS_TEXT_STYLE,
     SCROLL_LIST,
-    ADD_BUTTON,
+    OPERATION_BUTTON,
     TITLE_PATTERN,
     SMALL_TITLE_PATTERN_TOP,
-    NUMBER_VALUE,
-    LINE
+    LINE,
+    BALANCE_VALUE,
+    NEW_BALANCE_VALUE
 } from 'zosLoader:./index.page.[pf].layout.js'
 import { readFileSync, writeFileSync } from '../../utils/fs'
 import { getScrollListDataConfig } from '../../utils/index'
@@ -21,22 +21,55 @@ import { appState } from '../../utils/appState'
 import { LocalStorage } from '@zos/storage'
 
 const storage = new LocalStorage()
-const logger = Logger.getLogger('todo-list-page')
+const logger = Logger.getLogger('cash')
 
 Page({
     state: { text: null },
     onInit() {
+        const new_vl = storage.setItem('new_transaction', 0)
 
-        
+        this.updateNewTransaction = (newBalance) => {
+            if (this.newTransactionWidget) {
+                this.newTransactionWidget.setProperty(hmUI.prop.TEXT,
+                    `R$${newBalance.toFixed(2)}`
+                )
+            }
+        }
+
+        appState.on('new_transaction', this.updateNewTransaction)
     },
     build() {
+        const new_vl = storage.getItem('new_transaction')
+
         hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('NOVA', 90))
         hmUI.createWidget(hmUI.widget.TEXT, TITLE_PATTERN('Transação', 120))
 
-        hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(180))
-        const btn = hmUI.createWidget(hmUI.widget.BUTTON, ADD_BUTTON('+ Adicionar',45, 200, true))
-        hmUI.createWidget(hmUI.widget.BUTTON, ADD_BUTTON('- Subtrair',45, 310, false))
-        
+        hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(185))
+
+        this. newTransactionWidget = hmUI.createWidget(hmUI.widget.BUTTON, NEW_BALANCE_VALUE(
+            `${new_vl}`,
+            () => {
+                // QUANDO PRESSIONADO
+                vibrator.start()
+                setTimeout(() => {
+                    vibrator.stop()
+                }, 200)
+            },
+            () => {
+                // QUANDO CLICADO
+            }, true
+        ))
+
+        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↑', 42, 320,
+            () => {
+                logger.debug('incrementa mais um ao storage de chave new_trasaction')
+                storage.setItem('new_trasaction', storage.getItem('new_transaction') + 1)
+                appState.set('new_trasaction', storage.getItem('new_transaction'))
+                logger.debug(`valor da chave new_trasaction ${storage.getItem('new_transaction')} | ${new_vl}`)
+            }
+        ))
+        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↓', 250, 320))
+
     },
     onDestroy() {
 

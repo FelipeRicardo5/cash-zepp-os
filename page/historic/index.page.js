@@ -20,7 +20,7 @@ import { appState } from '../../utils/appState'
 import { LocalStorage } from '@zos/storage'
 
 const storage = new LocalStorage()
-const logger = Logger.getLogger('todo-list-page')
+const logger = Logger.getLogger('cash')
 
 Page({
     state: { text: null },
