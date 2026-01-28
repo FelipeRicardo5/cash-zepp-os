@@ -48,7 +48,7 @@ Page({
 
         hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(185))
 
-        this. newTransactionWidget = hmUI.createWidget(hmUI.widget.BUTTON, NEW_BALANCE_VALUE(
+        this.newTransactionWidget = hmUI.createWidget(hmUI.widget.BUTTON, NEW_BALANCE_VALUE(
             `${new_vl}`,
             () => {
                 // QUANDO PRESSIONADO
@@ -64,15 +64,32 @@ Page({
 
         hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↑', 'left', 'bottom', 20,
             () => {
-                logger.debug('incrementa mais um ao storage de chave new_trasaction')
-                storage.setItem('new_trasaction', storage.getItem('new_transaction') + 1)
-                appState.set('new_trasaction', storage.getItem('new_transaction'))
-                logger.debug(`valor da chave new_trasaction ${storage.getItem('new_transaction')} | ${new_vl}`)
+                logger.debug('incrementa mais um ao storage de chave new_transaction')
+                try {
+                    storage.setItem('new_transaction', storage.getItem('new_transaction') + 1)
+                }
+                catch (error) {
+                    logger.error(error)
+                }
+                appState.set('new_transaction', storage.getItem('new_transaction'))
+                logger.debug(`valor da chave new_transaction ${storage.getItem('new_transaction')} | ${new_vl}`)
             }
         ))
         logger.debug(DEVICE_WIDTH)
         logger.debug(Math.floor((DEVICE_WIDTH - px(88)) / 2))
-        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↓', 'right', 'bottom', 20))
+        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↓', 'right', 'bottom', 20,
+            () => {
+                logger.debug('incrementa mais um ao storage de chave new_transaction')
+                try {
+                    storage.setItem('new_transaction', storage.getItem('new_transaction') - 1)
+                }
+                catch (error) {
+                    logger.error(error)
+                }
+                appState.set('new_transaction', storage.getItem('new_transaction'))
+                logger.debug(`valor da chave new_transaction ${storage.getItem('new_transaction')} | ${new_vl}`)
+            }
+        ))
         hmUI.createWidget(hmUI.widget.BUTTON, BUTTON_IMG())
     },
     onDestroy() {
