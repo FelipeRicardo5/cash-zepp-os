@@ -13,7 +13,8 @@ import {
     SMALL_TITLE_PATTERN_TOP,
     LINE,
     BALANCE_VALUE,
-    NEW_BALANCE_VALUE
+    NEW_BALANCE_VALUE,
+    BUTTON_IMG
 } from 'zosLoader:./index.page.[pf].layout.js'
 import { readFileSync, writeFileSync } from '../../utils/fs'
 import { getScrollListDataConfig } from '../../utils/index'
@@ -22,6 +23,7 @@ import { LocalStorage } from '@zos/storage'
 
 const storage = new LocalStorage()
 const logger = Logger.getLogger('cash')
+const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo()
 
 Page({
     state: { text: null },
@@ -60,7 +62,7 @@ Page({
             }, true
         ))
 
-        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↑', 42, 320,
+        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↑', 'left', 'bottom', 20,
             () => {
                 logger.debug('incrementa mais um ao storage de chave new_trasaction')
                 storage.setItem('new_trasaction', storage.getItem('new_transaction') + 1)
@@ -68,8 +70,10 @@ Page({
                 logger.debug(`valor da chave new_trasaction ${storage.getItem('new_transaction')} | ${new_vl}`)
             }
         ))
-        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↓', 250, 320))
-
+        logger.debug(DEVICE_WIDTH)
+        logger.debug(Math.floor((DEVICE_WIDTH - px(88)) / 2))
+        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↓', 'right', 'bottom', 20))
+        hmUI.createWidget(hmUI.widget.BUTTON, BUTTON_IMG())
     },
     onDestroy() {
 

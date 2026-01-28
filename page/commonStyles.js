@@ -2,6 +2,7 @@ import * as hmUI from '@zos/ui'
 import { getText } from '@zos/i18n'
 import { getDeviceInfo } from '@zos/device'
 import { px } from '@zos/utils'
+import { getIconPosition } from '../utils/getPositionPattern'
 
 export const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo()
 
@@ -100,19 +101,50 @@ export const ADD_BUTTON = {
   press_src: 'add.png'
 }
 
-export const OPERATION_BUTTON = (op, x, y, onClick, onPress) => ({
-  text: getText(op),
-  x: x,
-  y: y,
-  w: DEVICE_WIDTH - px(150 * 2),
-  h: px(88),
-  text_size: 56,
-  radius: 100,
-  normal_color: 0x7C4FC6,
-  press_color: 0x22143F,
-  click_func: onClick,
-  longpress_func: onPress
-})
+export const OPERATION_BUTTON = (op, x, y, pad, onClick, onPress) => {
+  const { x: calcX, y: calcY } = getIconPosition({
+    alignX: x,
+    alignY: y,
+    size: px(88),
+    padding: px(pad),
+  })
+
+  const finalX = (typeof x === 'number') ? x : calcX
+  const finalY = (typeof y === 'number') ? y : calcY
+
+  return {
+    text: getText(op),
+    x: finalX,
+    y: finalY,
+    w: DEVICE_WIDTH - px(150 * 2),
+    h: px(88),
+    text_size: 56,
+    radius: 100,
+    normal_color: 0x7C4FC6,
+    press_color: 0x22143F,
+    click_func: onClick,
+    longpress_func: onPress
+  }
+}
+
+export const BUTTON_IMG = () => {
+  const { x, y } = getIconPosition({
+    alignX: 'center',
+    alignY: 'bottom',
+    size: px(88),
+    padding: px(20),
+  })
+
+  return {
+    x: x,
+    y: y,
+    w: px(88),
+    h: px(88),
+    normal_src: 'save.png',
+    press_src: 'save.png',
+  }
+}
+
 
 export const BALANCE_VALUE = (text, onPress = () => {}, onClick = () => {}, isNewTransaction = false) => ({
   text: getText(text),
