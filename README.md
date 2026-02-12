@@ -102,7 +102,3 @@ Este README foi criado com base no desenvolvimento de um MiniProgram de controle
 ---
 
 **Nota:** Este é um guia introdutório baseado em experiência prática de desenvolvimento. Para informações técnicas detalhadas, consulte a documentação oficial do Zepp OS.
-
----
-
-Quer que eu expanda alguma seção específica ou adicione mais detalhes técnicos sobre alguma ferramenta?
