@@ -1,0 +1,2 @@
+msgid "cashSettings"
+msgstr "Configurações do Cash"

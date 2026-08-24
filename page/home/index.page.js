@@ -1,114 +1,107 @@
-/// <reference types="@zeppos/types" />
-import * as hmUI from '@zos/ui'
+import AutoGUI from '@silver-zepp/autogui'
 import { getText } from '@zos/i18n'
-import { getDeviceInfo, SCREEN_SHAPE_SQUARE } from '@zos/device'
-import { log as Logger } from '@zos/utils'
 import { push } from '@zos/router'
+import { showToast } from '@zos/interaction'
 import { Vibrator } from '@zos/sensor'
-// import { BasePage } from '@zeppos/zml/base-page'
-import { createTextConfig } from '../../utils/textStyles.js'
+import { log as Logger } from '@zos/utils'
+import { appState } from '../../core/state'
+import { cashStorage } from '../../core/storage'
+import { formatCurrency } from '../../core/format'
+import { COLORS, STORAGE_KEYS } from '../../core/constants'
 
-import {
-  TITLE_TEXT_STYLE,
-  SCROLL_LIST,
-  ADD_BUTTON,
-  TITLE_PATTERN,
-  SMALL_TITLE_PATTERN_TOP,
-  BALANCE_VALUE,
-  LINE
-} from 'zosLoader:./index.page.[pf].layout.js'
-import { readFileSync, writeFileSync } from './../../utils/fs'
-import { getScrollListDataConfig } from './../../utils/index'
-import { appState } from '../../utils/appState'
-import { LocalStorage } from '@zos/storage'
-
+const logger = Logger.getLogger('cash')
 const vibrator = new Vibrator()
-const storage = new LocalStorage()
-const logger = Logger.getLogger('cash') // add correct name here
+const RESET_CONFIRM_TIMEOUT_MS = 3000
 
 Page({
-  state: {
-
-  },
   onInit() {
-    storage.setItem('balance', storage.getItem('balance', 0) || 0)
-    logger.debug('page onInit invoked')
+    logger.debug('home onInit invoked')
 
-    this.updateBalance = (newBalance) => {
-      if (this.balanceWidget) {
-        this.balanceWidget.setProperty(hmUI.prop.TEXT,
-          `R$${newBalance.toFixed(2)}`
-        )
+    this.resetArmed = false
+    this.resetTimer = null
+
+    this.updateBalance = (value) => {
+      if (this.balanceText) {
+        this.balanceText.update({ text: formatCurrency(value) })
       }
     }
 
-    appState.on('balance', this.updateBalance)
+    appState.on(STORAGE_KEYS.BALANCE, this.updateBalance)
   },
-  build() {
-    const vl = storage.getItem('balance', 100)
-    logger.debug('page build invoked')
 
-    if (getDeviceInfo().screenShape !== SCREEN_SHAPE_SQUARE) {
-      this.state.title = hmUI.createWidget(hmUI.widget.TEXT, {
-        ...TITLE_TEXT_STYLE
-      })
+  armReset(gui) {
+    this.resetArmed = true
+    this.hintText.update({ text: getText('Tap again to confirm') })
+    this.resetTimer = setTimeout(() => this.disarmReset(), RESET_CONFIRM_TIMEOUT_MS)
+  },
+
+  disarmReset() {
+    this.resetArmed = false
+    if (this.resetTimer) {
+      clearTimeout(this.resetTimer)
+      this.resetTimer = null
+    }
+    if (this.hintText) {
+      this.hintText.update({ text: '' })
+    }
+  },
+
+  handleReset() {
+    if (!this.resetArmed) {
+      this.armReset()
+      return
     }
 
-    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('Pressione e segure p/ resetar', 100))
-    hmUI.createWidget(hmUI.widget.TEXT, TITLE_PATTERN('Saldo Atual', 140))
+    this.disarmReset()
+    cashStorage.resetBalance()
+    appState.set(STORAGE_KEYS.BALANCE, 0)
 
-    hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(200))
-
-    this.balanceWidget = hmUI.createWidget(hmUI.widget.BUTTON, BALANCE_VALUE(
-      `R$${vl.toFixed(2)}`,
-      () => {
-        vibrator.start()
-        storage.setItem('balance', 0)
-        appState.set('balance', storage.getItem('balance'))
-        setTimeout(() => {
-          vibrator.stop()
-        }, 200)
-      },
-      () => { push({ url: 'page/new_transaction/index.page' }) },
-      
-    ))
-
-    hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(320))
-    hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('ou apenas clique para alterar.', 340))
-
-    // const add = hmUI.createWidget(hmUI.widget.BUTTON, {
-    //   text: '+ R$ 100',
-    //   x: 0,
-    //   y: 350,
-    //   w: 200,
-    //   h: 60,
-    //   click_func: () => {
-    //     // Atualiza o armazenamento local e o estado global
-    //     storage.setItem('balance', storage.getItem('balance') + 100)
-    //     appState.set('balance', storage.getItem('balance'))
-    //     logger.debug(storage.getItem('balance'))
-    //   }
-    // })
-
-    // const sub = hmUI.createWidget(hmUI.widget.BUTTON, {
-    //   text: '- R$ 100',
-    //   x: 150,
-    //   y: 350,
-    //   w: 200,
-    //   h: 60,
-    //   click_func: () => {
-    //     // Atualiza o armazenamento local e o estado global
-    //     storage.setItem('balance', storage.getItem('balance') - 100)
-    //     appState.set('balance', storage.getItem('balance'))
-    //     logger.debug(storage.getItem('balance'))
-    //   }
-    // })
-
-
+    vibrator.start()
+    setTimeout(() => vibrator.stop(), 200)
+    showToast({ message: getText('Balance reset') })
   },
+
+  build() {
+    const balance = cashStorage.getBalance()
+
+    const gui = new AutoGUI()
+    AutoGUI.SetTextColor(COLORS.WHITE)
+
+    gui.text(getText('Current Balance'))
+    this.balanceText = gui.text(formatCurrency(balance), {
+      text_size: 52,
+      color: COLORS.ACCENT
+    })
+    gui.newRow()
+
+    gui.button(
+      getText('New Transaction'),
+      () => push({ url: 'page/new_transaction/index.page' }),
+      { normal_color: COLORS.PRIMARY, press_color: COLORS.PRIMARY_DARK, radius: 24 }
+    )
+    gui.button(getText('History'), () => push({ url: 'page/historic/index.page' }), {
+      normal_color: COLORS.PRIMARY,
+      press_color: COLORS.PRIMARY_DARK,
+      radius: 24
+    })
+    gui.newRow()
+
+    gui.button(getText('Reset Balance'), () => this.handleReset(), {
+      normal_color: COLORS.PRIMARY_DARK,
+      press_color: COLORS.PRIMARY,
+      radius: 24,
+      text_size: 28
+    })
+    this.hintText = gui.text('', { text_size: 20, color: COLORS.MUTED })
+
+    gui.render()
+
+    appState.set(STORAGE_KEYS.BALANCE, balance)
+  },
+
   onDestroy() {
-    logger.debug('page onDestroy invoked')
-    // appState.off('balance', this.updateBalance)
-  },
-}
-)
+    logger.debug('home onDestroy invoked')
+    this.disarmReset()
+    appState.off(STORAGE_KEYS.BALANCE, this.updateBalance)
+  }
+})

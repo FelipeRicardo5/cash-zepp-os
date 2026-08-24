@@ -1,17 +1,13 @@
-// import { BaseApp } from '@zeppos/zml/base-app'
 import { log as Logger } from '@zos/utils'
 
-const logger = Logger.getLogger('todo-list-app')
+const logger = Logger.getLogger('cash')
 
 App({
-    globalData: {
-      balance: 0
-    },
-    onCreate() {
-      logger.log('app onCreate invoked')
-    },
-
-    onDestroy() {
-      logger.log('app onDestroy invoked')
-    }}
-)
+  globalData: {},
+  onCreate() {
+    logger.debug('app onCreate invoked')
+  },
+  onDestroy() {
+    logger.debug('app onDestroy invoked')
+  }
+})

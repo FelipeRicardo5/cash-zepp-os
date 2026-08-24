@@ -1,98 +1,140 @@
-/// <reference types="@zeppos/types" />
-import * as hmUI from '@zos/ui'
+import AutoGUI from '@silver-zepp/autogui'
 import { getText } from '@zos/i18n'
-import { getDeviceInfo, SCREEN_SHAPE_SQUARE } from '@zos/device'
+import { back } from '@zos/router'
+import { showToast } from '@zos/interaction'
 import { log as Logger } from '@zos/utils'
-import { push } from '@zos/router'
-// import { BasePage } from '@zeppos/zml/base-page'
-import {
-    TITLE_TEXT_STYLE,
-    SCROLL_LIST,
-    OPERATION_BUTTON,
-    TITLE_PATTERN,
-    SMALL_TITLE_PATTERN_TOP,
-    LINE,
-    BALANCE_VALUE,
-    NEW_BALANCE_VALUE,
-    BUTTON_IMG
-} from 'zosLoader:./index.page.[pf].layout.js'
-import { readFileSync, writeFileSync } from '../../utils/fs'
-import { getScrollListDataConfig } from '../../utils/index'
-import { appState } from '../../utils/appState'
-import { LocalStorage } from '@zos/storage'
+import { appState } from '../../core/state'
+import { cashStorage } from '../../core/storage'
+import { formatCurrency } from '../../core/format'
+import { COLORS, MAX_INPUT_DIGITS, STORAGE_KEYS, TRANSACTION_TYPE } from '../../core/constants'
 
-const storage = new LocalStorage()
 const logger = Logger.getLogger('cash')
-const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo()
 
 Page({
-    state: { text: null },
-    onInit() {
-        const new_vl = storage.setItem('new_transaction', 0)
+  onInit() {
+    logger.debug('new_transaction onInit invoked')
+    this.inputDigits = ''
+    this.transactionType = TRANSACTION_TYPE.EXPENSE
+  },
 
-        this.updateNewTransaction = (newBalance) => {
-            if (this.newTransactionWidget) {
-                this.newTransactionWidget.setProperty(hmUI.prop.TEXT,
-                    `R$${newBalance.toFixed(2)}`
-                )
-            }
-        }
+  currentAmount() {
+    return this.inputDigits ? parseInt(this.inputDigits, 10) / 100 : 0
+  },
 
-        appState.on('new_transaction', this.updateNewTransaction)
-    },
-    build() {
-        const new_vl = storage.getItem('new_transaction')
+  refreshDisplay() {
+    this.amountText.update({ text: formatCurrency(this.currentAmount()) })
+    this.incomeButton.update({ normal_color: this.isSelected(TRANSACTION_TYPE.INCOME) })
+    this.expenseButton.update({ normal_color: this.isSelected(TRANSACTION_TYPE.EXPENSE) })
+  },
 
-        hmUI.createWidget(hmUI.widget.TEXT, SMALL_TITLE_PATTERN_TOP('NOVA', 90))
-        hmUI.createWidget(hmUI.widget.TEXT, TITLE_PATTERN('Transação', 120))
+  isSelected(type) {
+    return type === this.transactionType ? COLORS.PRIMARY : COLORS.PRIMARY_DARK
+  },
 
-        hmUI.createWidget(hmUI.widget.FILL_RECT, LINE(185))
-
-        this.newTransactionWidget = hmUI.createWidget(hmUI.widget.BUTTON, NEW_BALANCE_VALUE(
-            `${new_vl}`,
-            () => {
-                // QUANDO PRESSIONADO
-                vibrator.start()
-                setTimeout(() => {
-                    vibrator.stop()
-                }, 200)
-            },
-            () => {
-                // QUANDO CLICADO
-            }, true
-        ))
-
-        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↑', 'left', 'bottom', 20,
-            () => {
-                logger.debug('incrementa mais um ao storage de chave new_transaction')
-                try {
-                    storage.setItem('new_transaction', storage.getItem('new_transaction') + 1)
-                }
-                catch (error) {
-                    logger.error(error)
-                }
-                appState.set('new_transaction', storage.getItem('new_transaction'))
-                logger.debug(`valor da chave new_transaction ${storage.getItem('new_transaction')} | ${new_vl}`)
-            }
-        ))
-        logger.debug(DEVICE_WIDTH)
-        logger.debug(Math.floor((DEVICE_WIDTH - px(88)) / 2))
-        hmUI.createWidget(hmUI.widget.BUTTON, OPERATION_BUTTON('↓', 'right', 'bottom', 20,
-            () => {
-                logger.debug('incrementa mais um ao storage de chave new_transaction')
-                try {
-                    storage.setItem('new_transaction', storage.getItem('new_transaction') - 1)
-                }
-                catch (error) {
-                    logger.error(error)
-                }
-                appState.set('new_transaction', storage.getItem('new_transaction'))
-                logger.debug(`valor da chave new_transaction ${storage.getItem('new_transaction')} | ${new_vl}`)
-            }
-        ))
-        hmUI.createWidget(hmUI.widget.BUTTON, BUTTON_IMG())
-    },
-    onDestroy() {
-
+  appendDigit(digit) {
+    if (this.inputDigits.length >= MAX_INPUT_DIGITS) {
+      return
     }
+    if (this.inputDigits === '' && digit === '0') {
+      return
+    }
+    this.inputDigits += digit
+    this.refreshDisplay()
+  },
+
+  eraseDigit() {
+    this.inputDigits = this.inputDigits.slice(0, -1)
+    this.refreshDisplay()
+  },
+
+  selectType(type) {
+    this.transactionType = type
+    this.refreshDisplay()
+  },
+
+  save() {
+    const amount = this.currentAmount()
+    if (amount <= 0) {
+      showToast({ message: getText('Invalid amount') })
+      return
+    }
+
+    cashStorage.addTransaction(this.transactionType, amount)
+    appState.set(STORAGE_KEYS.BALANCE, cashStorage.getBalance())
+    showToast({ message: getText('Transaction saved') })
+
+    logger.debug(`transaction saved: ${this.transactionType} ${amount}`)
+    back()
+  },
+
+  build() {
+    const gui = new AutoGUI()
+    AutoGUI.SetTextColor(COLORS.WHITE)
+
+    gui.text(getText('New Transaction'), { text_size: 28, color: COLORS.MUTED })
+
+    this.amountText = gui.text(formatCurrency(this.currentAmount()), {
+      text_size: 48,
+      color: COLORS.ACCENT
+    })
+
+    this.incomeButton = gui.button(getText('Income'), () => this.selectType(TRANSACTION_TYPE.INCOME), {
+      radius: 20,
+      text_size: 26,
+      normal_color: COLORS.PRIMARY_DARK,
+      press_color: COLORS.PRIMARY
+    })
+    this.expenseButton = gui.button(
+      getText('Expense'),
+      () => this.selectType(TRANSACTION_TYPE.EXPENSE),
+      {
+        radius: 20,
+        text_size: 26,
+        normal_color: COLORS.PRIMARY_DARK,
+        press_color: COLORS.PRIMARY
+      }
+    )
+
+    const keypadRows = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']]
+    keypadRows.forEach((row) => {
+      row.forEach((digit) => {
+        gui.button(digit, () => this.appendDigit(digit), {
+          radius: 16,
+          text_size: 32,
+          normal_color: COLORS.PRIMARY_DARK,
+          press_color: COLORS.PRIMARY
+        })
+      })
+      gui.newRow()
+    })
+
+    gui.button('<', () => this.eraseDigit(), {
+      radius: 16,
+      text_size: 32,
+      normal_color: COLORS.PRIMARY_DARK,
+      press_color: COLORS.PRIMARY
+    })
+    gui.button('0', () => this.appendDigit('0'), {
+      radius: 16,
+      text_size: 32,
+      normal_color: COLORS.PRIMARY_DARK,
+      press_color: COLORS.PRIMARY
+    })
+    gui.spacer()
+    gui.newRow()
+
+    gui.button(getText('Save'), () => this.save(), {
+      radius: 24,
+      text_size: 30,
+      normal_color: COLORS.PRIMARY,
+      press_color: COLORS.PRIMARY_DARK
+    })
+
+    gui.render()
+    this.refreshDisplay()
+  },
+
+  onDestroy() {
+    logger.debug('new_transaction onDestroy invoked')
+  }
 })

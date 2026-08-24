@@ -1,5 +1,2 @@
-msgid "addTodo"
-msgstr "ADD TODO"
-
-msgid "delete"
-msgstr "DELETE"
+msgid "cashSettings"
+msgstr "Cash Settings"
