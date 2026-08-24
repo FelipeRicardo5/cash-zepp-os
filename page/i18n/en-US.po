@@ -1,21 +1,38 @@
+msgid "Current Balance"
+msgstr "Current Balance"
 
-msgid "todoList"
-msgstr "todo List"
+msgid "New Transaction"
+msgstr "New Transaction"
 
-msgid "noData"
-msgstr "No data, please add it on the phone"
+msgid "History"
+msgstr "History"
 
-msgid "add"
-msgstr "Add"
+msgid "Reset Balance"
+msgstr "Reset Balance"
 
-msgid "deleteSuccess"
-msgstr "successfully deleted"
+msgid "Tap again to confirm"
+msgstr "Tap again to confirm"
 
-msgid "deleteFailure"
-msgstr "Delete failed, check the network"
+msgid "Balance reset"
+msgstr "Balance reset"
 
-msgid "addSuccess"
-msgstr "Added successfully"
+msgid "Income"
+msgstr "Income"
 
-msgid "addFailure"
-msgstr "Failed to add, check the network"
+msgid "Expense"
+msgstr "Expense"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Invalid amount"
+msgstr "Invalid amount"
+
+msgid "Transaction saved"
+msgstr "Transaction saved"
+
+msgid "Transaction removed"
+msgstr "Transaction removed"
+
+msgid "No transactions yet"
+msgstr "No transactions yet"

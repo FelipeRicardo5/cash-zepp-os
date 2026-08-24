@@ -1,0 +1,38 @@
+msgid "Current Balance"
+msgstr "Saldo Atual"
+
+msgid "New Transaction"
+msgstr "Nova Transação"
+
+msgid "History"
+msgstr "Histórico"
+
+msgid "Reset Balance"
+msgstr "Zerar Saldo"
+
+msgid "Tap again to confirm"
+msgstr "Toque de novo para confirmar"
+
+msgid "Balance reset"
+msgstr "Saldo zerado"
+
+msgid "Income"
+msgstr "Entrada"
+
+msgid "Expense"
+msgstr "Saída"
+
+msgid "Save"
+msgstr "Salvar"
+
+msgid "Invalid amount"
+msgstr "Valor inválido"
+
+msgid "Transaction saved"
+msgstr "Transação salva"
+
+msgid "Transaction removed"
+msgstr "Transação removida"
+
+msgid "No transactions yet"
+msgstr "Nenhuma transação ainda"

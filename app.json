@@ -55,6 +55,9 @@
   "i18n": {
     "en-US": {
       "name": "Cash"
+    },
+    "pt-BR": {
+      "name": "Cash"
     }
   },
   "defaultLanguage": "en-US",
